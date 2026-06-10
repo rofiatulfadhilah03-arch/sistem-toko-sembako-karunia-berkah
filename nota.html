@@ -1,0 +1,560 @@
+<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"><title>Nota Pembelian | Toko Sembako</title><style>
+        :root {
+            --ink: #111827;
+            --muted: #6b7280;
+            --line: #d1d5db;
+            --primary: #2563eb;
+            --green: #16a34a;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            padding: 24px;
+            font-family: "Segoe UI", Arial, sans-serif;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at top left, rgba(37,99,235,.18), transparent 30rem),
+                radial-gradient(circle at bottom right, rgba(22,163,74,.14), transparent 28rem),
+                #eef5ff;
+        }
+        .screen-wrap {
+            width: min(980px, 100%);
+            display: grid;
+            grid-template-columns: 360px 1fr;
+            gap: 20px;
+            align-items: start;
+        }
+        .toolbar {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 24px;
+            box-shadow: 0 18px 45px rgba(15,23,42,.10);
+            padding: 24px;
+        }
+        .toolbar h1 {
+            margin: 0 0 8px;
+            font-size: 28px;
+            letter-spacing: -.04em;
+        }
+        .toolbar p {
+            margin: 0 0 18px;
+            color: var(--muted);
+            line-height: 1.6;
+        }
+        .toolbar .btns {
+            display: grid;
+            gap: 10px;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            border: 0;
+            border-radius: 14px;
+            padding: 12px 15px;
+            background: linear-gradient(135deg, var(--primary), #3b82f6);
+            color: #fff;
+            text-decoration: none;
+            cursor: pointer;
+            font-weight: 800;
+            font-size: 14px;
+            box-shadow: 0 8px 18px rgba(37,99,235,.22);
+        }
+        .btn.green { background: linear-gradient(135deg, #16a34a, #22c55e); box-shadow: 0 8px 18px rgba(22,163,74,.20); }
+        .btn.gray { background: linear-gradient(135deg, #475569, #64748b); box-shadow: 0 8px 18px rgba(71,85,105,.20); }
+        .nota-preview {
+            display: grid;
+            place-items: start center;
+        }
+        .receipt {
+            width: 80mm;
+            min-height: 120mm;
+            background: #fff;
+            border-radius: 18px;
+            padding: 18px 16px;
+            box-shadow: 0 22px 60px rgba(15,23,42,.18);
+            font-family: "Consolas", "Courier New", monospace;
+            color: #000;
+        }
+        .receipt h2 {
+            margin: 0;
+            text-align: center;
+            font-size: 17px;
+            letter-spacing: .04em;
+        }
+        .receipt .store-info {
+            text-align: center;
+            font-size: 11px;
+            line-height: 1.45;
+            margin-top: 4px;
+        }
+        .line {
+            border-top: 1px dashed #000;
+            margin: 10px 0;
+        }
+        .meta {
+            font-size: 11px;
+            line-height: 1.55;
+        }
+        .meta-row {
+            display: grid;
+            grid-template-columns: 82px 1fr;
+            gap: 6px;
+        }
+        .item {
+            font-size: 11px;
+            margin-bottom: 8px;
+        }
+        .item-name {
+            font-weight: 700;
+            line-height: 1.35;
+        }
+        .item-calc {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 8px;
+            margin-top: 2px;
+        }
+        .totals {
+            font-size: 12px;
+            line-height: 1.75;
+        }
+        .total-row {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 10px;
+        }
+        .total-row.grand {
+            font-size: 14px;
+            font-weight: 900;
+            border-top: 1px dashed #000;
+            border-bottom: 1px dashed #000;
+            padding: 5px 0;
+            margin: 5px 0;
+        }
+        .footer-note {
+            text-align: center;
+            font-size: 11px;
+            line-height: 1.5;
+            margin-top: 12px;
+        }
+        .barcode {
+            text-align: center;
+            font-size: 22px;
+            letter-spacing: 2px;
+            margin-top: 8px;
+        }
+       @media print {
+    @page {
+        size: 80mm 297mm;
+        margin: 0;
+    }
+
+    html,
+    body {
+        width: 80mm;
+        margin: 0;
+        padding: 0;
+        background: #fff;
+    }
+
+    .screen-wrap {
+        display: block;
+        width: 80mm;
+        margin: 0;
+        padding: 0;
+    }
+
+    .toolbar {
+        display: none !important;
+    }
+
+    .nota-preview {
+        display: block;
+        width: 80mm;
+        margin: 0;
+        padding: 0;
+    }
+
+    .receipt {
+        width: 72mm;
+        min-height: 0;
+        margin: 0 auto;
+        padding: 4mm;
+        border-radius: 0;
+        box-shadow: none;
+    }
+}
+        @media (max-width: 840px) {
+            .screen-wrap { grid-template-columns: 1fr; }
+            .toolbar { order: 2; }
+            .nota-preview { order: 1; }
+        }
+    
+
+/* RESPONSIVE NOTA V23: desktop, iPad, Android, iPhone */
+@media (max-width: 900px) {
+    body {
+        padding: 14px;
+        place-items: start center;
+    }
+    .screen-wrap {
+        width: 100%;
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+    .toolbar {
+        padding: 18px;
+        border-radius: 22px;
+    }
+    .toolbar h1 {
+        font-size: 24px;
+    }
+    .nota-preview {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        display: flex;
+        justify-content: center;
+    }
+    .receipt {
+        flex: 0 0 auto;
+    }
+}
+@media (max-width: 560px) {
+    body {
+        padding: 10px;
+    }
+    .toolbar {
+        padding: 15px;
+        border-radius: 18px;
+    }
+    .toolbar h1 {
+        font-size: 21px;
+    }
+    .toolbar p {
+        font-size: 13px;
+    }
+    .btn {
+        min-height: 44px;
+        font-size: 13px;
+    }
+    .nota-preview {
+        justify-content: flex-start;
+    }
+    .receipt {
+        width: 80mm;
+        max-width: none;
+    }
+}
+@media print {
+    .screen-wrap,
+    .nota-preview,
+    .receipt {
+        width: 80mm !important;
+        max-width: 80mm !important;
+    }
+}
+
+
+
+/* =========================================================
+   V26 FIX PENJUALAN MOBILE
+   Login dan lupa password tetap mengikuti V23/V25.
+   Khusus halaman penjualan: tabel item dan riwayat dibuat rapi di HP.
+   ========================================================= */
+@media screen and (max-width: 640px) {
+    body[data-page="penjualan"] #formPenjualan > .grid-3:first-child,
+    body[data-page="penjualan"] #formPenjualan > .grid-3:nth-of-type(2) {
+        padding: 14px !important;
+        border-radius: 20px !important;
+        gap: 12px !important;
+    }
+
+    body[data-page="penjualan"] #tambahItemBtn,
+    body[data-page="penjualan"] #formPenjualan > button[type="submit"] {
+        width: 100% !important;
+        min-height: 50px !important;
+        border-radius: 16px !important;
+        font-size: 15px !important;
+        font-weight: 950 !important;
+    }
+
+    body[data-page="penjualan"] #formPenjualan .table-wrap {
+        overflow: visible !important;
+        border: 0 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        margin-top: 12px !important;
+    }
+
+    body[data-page="penjualan"] #tabelItem,
+    body[data-page="penjualan"] #tabelItem thead,
+    body[data-page="penjualan"] #tabelItem tbody,
+    body[data-page="penjualan"] #tabelItem tfoot,
+    body[data-page="penjualan"] #tabelItem tr,
+    body[data-page="penjualan"] #tabelItem td,
+    body[data-page="penjualan"] #tabelItem th {
+        display: block !important;
+        width: 100% !important;
+        min-width: 0 !important;
+    }
+
+    body[data-page="penjualan"] #tabelItem {
+        table-layout: auto !important;
+        border-collapse: separate !important;
+        border-spacing: 0 !important;
+        background: transparent !important;
+    }
+
+    body[data-page="penjualan"] #tabelItem thead {
+        display: none !important;
+    }
+
+    body[data-page="penjualan"] #tabelItem tbody tr {
+        margin: 0 0 12px !important;
+        padding: 14px 14px 12px !important;
+        border-radius: 18px !important;
+        background: linear-gradient(145deg, rgba(255,255,255,.96), rgba(239,246,255,.84)) !important;
+        border: 1px solid rgba(148, 163, 184, .22) !important;
+        box-shadow: 0 14px 32px rgba(15, 23, 42, .08) !important;
+        overflow: hidden !important;
+    }
+
+    body[data-page="penjualan"] #tabelItem tbody td {
+        min-height: 34px !important;
+        padding: 7px 0 !important;
+        border: 0 !important;
+        background: transparent !important;
+        white-space: normal !important;
+        font-size: 14px !important;
+        line-height: 1.35 !important;
+    }
+
+    body[data-page="penjualan"] #tabelItem tbody td:not(:first-child) {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 12px !important;
+        border-top: 1px dashed rgba(148, 163, 184, .28) !important;
+    }
+
+    body[data-page="penjualan"] #tabelItem tbody td::before {
+        color: #64748b !important;
+        font-size: 11px !important;
+        font-weight: 950 !important;
+        letter-spacing: .08em !important;
+        text-transform: uppercase !important;
+    }
+
+    body[data-page="penjualan"] #tabelItem tbody td:nth-child(1)::before { content: "Barang"; display: block; margin-bottom: 7px; }
+    body[data-page="penjualan"] #tabelItem tbody td:nth-child(2)::before { content: "Harga"; }
+    body[data-page="penjualan"] #tabelItem tbody td:nth-child(3)::before { content: "Qty"; }
+    body[data-page="penjualan"] #tabelItem tbody td:nth-child(4)::before { content: "Subtotal"; }
+    body[data-page="penjualan"] #tabelItem tbody td:nth-child(5)::before { content: "Aksi"; }
+
+    body[data-page="penjualan"] #tabelItem tbody td:nth-child(1) {
+        color: #0f172a !important;
+        font-size: 15px !important;
+        font-weight: 900 !important;
+        padding-bottom: 10px !important;
+    }
+
+    body[data-page="penjualan"] .item-unit-badge {
+        display: inline-flex !important;
+        margin: 7px 0 0 0 !important;
+        padding: 4px 9px !important;
+        font-size: 11px !important;
+        vertical-align: middle !important;
+    }
+
+    body[data-page="penjualan"] #tabelItem .btn-danger {
+        width: auto !important;
+        min-width: 92px !important;
+        max-width: 110px !important;
+        min-height: 40px !important;
+        padding: 9px 13px !important;
+        border-radius: 14px !important;
+        margin-left: auto !important;
+    }
+
+    body[data-page="penjualan"] #tabelItem tfoot {
+        margin-top: 4px !important;
+        padding: 14px !important;
+        border-radius: 18px !important;
+        background: linear-gradient(135deg, #f8fafc, #ecfeff) !important;
+        border: 1px solid rgba(20, 184, 166, .18) !important;
+        box-shadow: 0 14px 30px rgba(15, 23, 42, .06) !important;
+    }
+
+    body[data-page="penjualan"] #tabelItem tfoot tr {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 12px !important;
+    }
+
+    body[data-page="penjualan"] #tabelItem tfoot th {
+        padding: 0 !important;
+        border: 0 !important;
+        background: transparent !important;
+        white-space: normal !important;
+    }
+
+    body[data-page="penjualan"] #tabelItem tfoot th:first-child {
+        width: auto !important;
+        color: #0f172a !important;
+        font-size: 13px !important;
+        font-weight: 950 !important;
+        letter-spacing: .08em !important;
+        text-transform: uppercase !important;
+    }
+
+    body[data-page="penjualan"] #grandTotal {
+        width: auto !important;
+        min-width: max-content !important;
+        color: #047857 !important;
+        font-size: 18px !important;
+        text-align: right !important;
+    }
+
+    body[data-page="penjualan"] #tabelItem tfoot th:last-child {
+        display: none !important;
+    }
+
+    body[data-page="penjualan"] .history-card .table-wrap {
+        overflow: visible !important;
+        border: 0 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+    }
+
+    body[data-page="penjualan"] .history-mobile-table,
+    body[data-page="penjualan"] .history-mobile-table thead,
+    body[data-page="penjualan"] .history-mobile-table tbody,
+    body[data-page="penjualan"] .history-mobile-table tr,
+    body[data-page="penjualan"] .history-mobile-table td,
+    body[data-page="penjualan"] .history-mobile-table th {
+        display: block !important;
+        width: 100% !important;
+        min-width: 0 !important;
+    }
+
+    body[data-page="penjualan"] .history-mobile-table thead {
+        display: none !important;
+    }
+
+    body[data-page="penjualan"] .history-mobile-table tbody tr {
+        margin: 0 0 12px !important;
+        padding: 13px 14px !important;
+        border-radius: 18px !important;
+        background: linear-gradient(145deg, rgba(255,255,255,.96), rgba(248,250,252,.86)) !important;
+        border: 1px solid rgba(148, 163, 184, .20) !important;
+        box-shadow: 0 12px 28px rgba(15, 23, 42, .065) !important;
+    }
+
+    body[data-page="penjualan"] .history-mobile-table tbody td {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 12px !important;
+        padding: 7px 0 !important;
+        border: 0 !important;
+        border-top: 1px dashed rgba(148, 163, 184, .25) !important;
+        background: transparent !important;
+        white-space: normal !important;
+        font-size: 13px !important;
+        line-height: 1.38 !important;
+        text-align: right !important;
+    }
+
+    body[data-page="penjualan"] .history-mobile-table tbody td:first-child {
+        border-top: 0 !important;
+    }
+
+    body[data-page="penjualan"] .history-mobile-table tbody td::before {
+        flex: 0 0 92px !important;
+        color: #64748b !important;
+        font-size: 11px !important;
+        font-weight: 950 !important;
+        letter-spacing: .08em !important;
+        text-transform: uppercase !important;
+        text-align: left !important;
+    }
+
+    body[data-page="penjualan"] .history-mobile-table tbody td:nth-child(1)::before { content: "No"; }
+    body[data-page="penjualan"] .history-mobile-table tbody td:nth-child(2)::before { content: "Faktur"; }
+    body[data-page="penjualan"] .history-mobile-table tbody td:nth-child(3)::before { content: "Tanggal"; }
+    body[data-page="penjualan"] .history-mobile-table tbody td:nth-child(4)::before { content: "Kasir"; }
+    body[data-page="penjualan"] .history-mobile-table tbody td:nth-child(5)::before { content: "Total"; }
+    body[data-page="penjualan"] .history-mobile-table tbody td:nth-child(6)::before { content: "Bayar"; }
+    body[data-page="penjualan"] .history-mobile-table tbody td:nth-child(7)::before { content: "Kembali"; }
+    body[data-page="penjualan"] .history-mobile-table tbody td:nth-child(8)::before { content: "Aksi"; }
+
+    body[data-page="penjualan"] .history-mobile-table .btn,
+    body[data-page="penjualan"] .history-mobile-table button {
+        width: auto !important;
+        min-height: 38px !important;
+        padding: 8px 12px !important;
+        border-radius: 13px !important;
+        margin-left: auto !important;
+    }
+}
+</style></head><body data-page="nota" class="print-page"><div id="nota-root"></div><script>
+
+(function(){
+const rupiah=new Intl.NumberFormat('id-ID');
+const money=n=>'Rp '+rupiah.format(Number(n||0));
+const q=(s,r=document)=>r.querySelector(s);const qa=(s,r=document)=>Array.from(r.querySelectorAll(s));
+const today=()=>new Date().toISOString().slice(0,10);
+const nowStr=()=>{const d=new Date(); const pad=n=>String(n).padStart(2,'0'); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`}
+const dateText=()=>new Date().toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'});
+const dbKey='sembakoHTMLExactDBv22';
+function seed(){return {users:[{id:1,nama:'Administrator',username:'admin',password:'admin123',role:'admin',no_hp:'081234567890',alamat:'Toko Sembako',status:'aktif'},{id:2,nama:'Kasir Satu',username:'kasir',password:'kasir123',role:'kasir',no_hp:'081111111111',alamat:'Toko Sembako',status:'aktif'}],supplier:[{id:1,nama_supplier:'CV Sumber Pangan',no_telp:'082222222222',alamat:'Jl. Merdeka No. 10'},{id:2,nama_supplier:'UD Beras Makmur',no_telp:'083333333333',alamat:'Jl. Pasar Raya No. 5'}],barang:[{id:1,kode_barang:'BRG001',nama_barang:'Beras Premium',supplier_id:2,satuan:'5 Kg',harga_beli:65000,harga_jual:72000,stok:30},{id:2,kode_barang:'BRG002',nama_barang:'Minyak Goreng',supplier_id:1,satuan:'1 Liter',harga_beli:14500,harga_jual:17000,stok:50},{id:3,kode_barang:'BRG003',nama_barang:'Gula Pasir',supplier_id:1,satuan:'1 Kg',harga_beli:14500,harga_jual:16500,stok:40}],penjualan:[],detail_penjualan:[]}}
+function load(){let d=localStorage.getItem(dbKey);if(!d){d=seed();save(d);return d}try{return JSON.parse(d)}catch(e){d=seed();save(d);return d}}
+function save(d){localStorage.setItem(dbKey,JSON.stringify(d))}
+function nextId(a){return Math.max(0,...a.map(x=>Number(x.id)||0))+1}
+function currentUser(){try{return JSON.parse(sessionStorage.getItem('sembakoUser')||'null')}catch(e){return null}}
+function setUser(u){sessionStorage.setItem('sembakoUser',JSON.stringify(u))}
+function logout(){sessionStorage.removeItem('sembakoUser')}
+function esc(s){return String(s??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}
+function alertBox(type,msg){return `<div class="alert alert-${type}">${msg}</div>`}
+function getKasir(id,d=load()){return d.users.find(u=>Number(u.id)===Number(id))||{} }
+function getBarang(id,d=load()){return d.barang.find(b=>Number(b.id)===Number(id))||{} }
+function getSupplier(id,d=load()){return d.supplier.find(s=>Number(s.id)===Number(id))||{} }
+function isToday(t){return String(t||'').slice(0,10)===today()}
+function filteredPenjualan(d){const u=currentUser();let arr=[...d.penjualan]; if(u?.role==='kasir') arr=arr.filter(p=>Number(p.kasir_id)===Number(u.id)); return arr.sort((a,b)=>b.id-a.id)}
+function detailRows(d){let ps=filteredPenjualan(d);let allowed=new Set(ps.map(p=>p.id));return d.detail_penjualan.filter(x=>allowed.has(x.penjualan_id)).map(x=>{let p=d.penjualan.find(p=>p.id===x.penjualan_id)||{};let b=getBarang(x.barang_id,d);let u=getKasir(p.kasir_id,d);return {...x,no_faktur:p.no_faktur,tanggal:p.tanggal,nama_kasir:u.nama,kode_barang:b.kode_barang,nama_barang:b.nama_barang,satuan:b.satuan}}).sort((a,b)=>b.id-a.id)}
+function setHeader(){const u=currentUser();if(!u)return; q('[data-user-avatar]')&&(q('[data-user-avatar]').textContent=(u.nama||'A').slice(0,1).toUpperCase());q('[data-user-name]')&&(q('[data-user-name]').textContent=u.nama);q('[data-user-role]')&&(q('[data-user-role]').textContent=u.role.toUpperCase());q('[data-current-role]')&&(q('[data-current-role]').textContent=u.role.toUpperCase());q('[data-date-pill]')&&(q('[data-date-pill]').textContent=dateText());q('[data-footer-year]')&&(q('[data-footer-year]').textContent='© '+new Date().getFullYear()+' Toko Karunia Berkah');qa('[data-role-menu="admin"]').forEach(a=>{if(u.role!=='admin')a.remove()})}
+function guard(page){if(['login','forgot','nota'].includes(page))return true;let u=currentUser();if(!u){location.href='index.html';return false}return true}
+function noAccess(){location.href='dashboard.html?error=akses'}
+function parseUnit(s){let m=String(s||'1 Kg').match(/^([0-9.,]+)\s+(.+)$/);return m?[m[1].replace(',','.'),m[2]]:['1',s||'Kg']}
+function nextKode(d){let n=Math.max(0,...d.barang.map(b=>Number(String(b.kode_barang).replace(/\D/g,''))||0))+1;return 'BRG'+String(n).padStart(3,'0')}
+function formData(form){return Object.fromEntries(new FormData(form).entries())}
+function pageEl(){return q('#app-content')}
+function renderDashboard(){let d=load(),u=currentUser(),ps=filteredPenjualan(d),todayPs=ps.filter(p=>isToday(p.tanggal));let totalPenjualan=ps.reduce((s,p)=>s+Number(p.total),0);let roleAdmin=u.role==='admin';pageEl().innerHTML=`<div class="page-title"><h1>Menu Utama</h1></div>${new URLSearchParams(location.search).has('error')?alertBox('error','Anda tidak memiliki hak akses ke menu tersebut.'):''}<section class="dashboard-hero"><div><h2>Ringkasan toko hari ini</h2><p>${roleAdmin?'Pantau stok barang, supplier, kasir, transaksi harian, dan omzet toko dalam satu tampilan yang lebih luas, rapi, dan mudah dibaca.':'Pantau transaksi harian, omzet pribadi, dan riwayat penjualan milik akun kasir yang sedang login.'}</p></div><div class="hero-kpi"><div><span>Transaksi Hari Ini</span><strong data-counter>${todayPs.length}</strong></div><div><span>Omzet Hari Ini</span><strong data-counter>${money(todayPs.reduce((s,p)=>s+Number(p.total),0))}</strong></div></div></section><div class="stats"><div class="stat"><h3>Total Barang</h3><p>${d.barang.length}</p></div><div class="stat"><h3>Total Supplier</h3><p>${d.supplier.length}</p></div><div class="stat"><h3>Total Kasir</h3><p>${d.users.filter(x=>x.role==='kasir').length}</p></div><div class="stat"><h3>${roleAdmin?'Total Penjualan':'Penjualan Saya'}</h3><p>${money(totalPenjualan)}</p></div></div><div class="dashboard-grid"><div class="card transaksi-terbaru-card"><h2>Transaksi Terbaru</h2><table class="table-transaksi-dashboard"><thead><tr><th>No</th><th>No Faktur</th><th>Tanggal</th><th>Nama Kasir</th><th>Total</th><th>Bayar</th><th>Kembali</th></tr></thead><tbody>${ps.slice(0,5).map((p,i)=>`<tr><td>${i+1}</td><td>${p.no_faktur}</td><td>${p.tanggal}</td><td>${esc(getKasir(p.kasir_id,d).nama)}</td><td>${money(p.total)}</td><td>${money(p.bayar)}</td><td>${money(p.kembali)}</td></tr>`).join('')||'<tr><td colspan="7">Belum ada transaksi.</td></tr>'}</tbody></table></div><div class="card"><h2>Akses Cepat</h2><div class="quick-actions"><a href="penjualan.html">🛒 Transaksi Baru <span>Input penjualan</span></a><a href="detail_penjualan.html">🧾 Detail Transaksi <span>Rincian barang terjual</span></a>${roleAdmin?'<a href="laporan_penjualan.html">📊 Cetak Penjualan <span>Laporan transaksi</span></a><a href="barang.html">📦 Kelola Barang <span>Stok dan harga</span></a>':''}</div></div></div>`}
+function renderBarang(editId=null,msg=''){let d=load(); if(currentUser().role!=='admin')return noAccess(); let edit=d.barang.find(b=>b.id==editId);let data=[...d.barang].sort((a,b)=>a.kode_barang.localeCompare(b.kode_barang));let totalStok=d.barang.reduce((s,b)=>s+Number(b.stok),0);let stokMenipis=d.barang.filter(b=>b.stok<=5).length;let nilai=d.barang.reduce((s,b)=>s+b.harga_jual*b.stok,0);let satuan=['Kg','Gram','Pcs','Slp','Liter','Ml','Botol','Bungkus','Dus','Sak','Pack','Kaleng','Kotak','Renteng'];let [isi,unit]=parseUnit(edit?.satuan);pageEl().innerHTML=`<div class="page-title page-title-inventory"><div><h1>Form Barang</h1><p class="page-subtitle">Kelola stok, harga, supplier, dan kode barang secara berurutan.</p></div><a class="btn btn-print" href="laporan_barang.html">Cetak Laporan</a></div>${msg}${new URLSearchParams(location.search).get('error')==='barang_dipakai'?alertBox('error','⚠️ Barang tidak bisa dihapus karena sudah pernah digunakan dalam transaksi penjualan.'):''}<div class="inventory-hero"><div class="inventory-hero-copy"><span class="inventory-badge">📦 Inventory Barang</span><h2>Kode barang kini tampil berurutan.</h2><p>Data barang ditampilkan dari kode terkecil ke terbesar. Saat tambah barang baru, kode otomatis disiapkan agar tidak tertukar.</p></div><div class="inventory-mini-stats"><div><span>Total Barang</span><strong data-counter>${d.barang.length}</strong></div><div><span>Total Stok</span><strong data-counter>${totalStok}</strong></div><div><span>Stok Menipis</span><strong data-counter>${stokMenipis}</strong></div><div><span>Nilai Stok</span><strong>${money(nilai)}</strong></div></div></div><div class="card inventory-form-card"><div class="section-head"><div><span class="section-kicker">${edit?'Edit Data Barang':'Tambah Barang Baru'}</span><h2>${edit?'Perbarui informasi barang':'Input barang ke daftar stok'}</h2></div><div class="next-code-pill">Kode aktif: <strong>${edit?edit.kode_barang:nextKode(d)}</strong></div></div><form id="barangForm"><input type="hidden" name="id" value="${edit?.id||''}"><div class="grid-3 inventory-form-grid"><div class="form-group"><label>Kode Barang</label><input type="text" name="kode_barang" class="readonly-code" value="${edit?edit.kode_barang:nextKode(d)}" readonly required><small class="field-hint">Kode dibuat otomatis agar urutan barang rapi.</small></div><div class="form-group"><label>Nama Barang</label><input type="text" name="nama_barang" value="${esc(edit?.nama_barang||'')}" placeholder="Contoh: Beras Premium 5 Kg" required></div><div class="form-group"><label>Supplier</label><select name="supplier_id"><option value="">- Pilih Supplier -</option>${d.supplier.map(s=>`<option value="${s.id}" ${edit?.supplier_id==s.id?'selected':''}>${esc(s.nama_supplier)}</option>`).join('')}</select></div><div class="form-group"><label>Isi & Satuan</label><div class="satuan-field"><input type="text" name="isi_satuan" class="unit-size-input" value="${isi}" required><select name="satuan_dasar">${satuan.map(x=>`<option ${unit===x?'selected':''}>${x}</option>`).join('')}</select></div><small class="field-hint">Contoh: 1 Kg, 200 Gram, 1 Liter.</small></div><div class="form-group"><label>Harga Beli</label><input type="text" name="harga_beli" class="rupiah-input" inputmode="numeric" value="${edit?edit.harga_beli:''}" required></div><div class="form-group"><label>Harga Jual</label><input type="text" name="harga_jual" class="rupiah-input" inputmode="numeric" value="${edit?edit.harga_jual:''}" required></div><div class="form-group"><label>Stok</label><input type="number" name="stok" value="${edit?.stok||''}" required></div></div><button type="submit">${edit?'Update Barang':'Simpan Barang'}</button>${edit?' <button type="button" class="btn btn-secondary" onclick="location.href=\'barang.html\'">Batal</button>':''}</form></div><div class="card"><table><thead><tr><th>No</th><th>Kode</th><th>Nama Barang</th><th>Supplier</th><th>Satuan</th><th>Harga Beli</th><th>Harga Jual</th><th>Stok</th><th>Aksi</th></tr></thead><tbody>${data.map((b,i)=>{let dipakai=d.detail_penjualan.some(x=>x.barang_id==b.id);return `<tr><td>${i+1}</td><td><span class="code-badge">${b.kode_barang}</span></td><td><strong>${esc(b.nama_barang)}</strong></td><td>${esc(getSupplier(b.supplier_id,d).nama_supplier||'-')}</td><td>${esc(b.satuan)}</td><td>${money(b.harga_beli)}</td><td>${money(b.harga_jual)}</td><td><span class="stock-badge ${b.stok<=5?'danger':b.stok<=15?'warning':'safe'}">${b.stok}</span></td><td class="actions"><button class="btn btn-secondary" data-edit-barang="${b.id}">Edit</button>${dipakai?'<span class="btn btn-secondary">Terkunci</span>':`<button class="btn btn-danger" data-del-barang="${b.id}">Hapus</button>`}</td></tr>`}).join('')}</tbody></table></div>`;q('#barangForm').onsubmit=e=>{e.preventDefault();let f=formData(e.target);let satuan=(f.isi_satuan||'1')+' '+f.satuan_dasar;let payload={id:f.id?Number(f.id):nextId(d.barang),kode_barang:f.kode_barang,nama_barang:f.nama_barang,supplier_id:f.supplier_id?Number(f.supplier_id):null,satuan,harga_beli:Number((f.harga_beli||'').replace(/\D/g,'')),harga_jual:Number((f.harga_jual||'').replace(/\D/g,'')),stok:Number(f.stok||0)};if(f.id){let ix=d.barang.findIndex(x=>x.id==f.id);d.barang[ix]=payload}else d.barang.push(payload);save(d);renderBarang(null,alertBox('success','✅ Data barang berhasil diproses.'))};qa('[data-edit-barang]').forEach(b=>b.onclick=()=>renderBarang(b.dataset.editBarang));qa('[data-del-barang]').forEach(b=>b.onclick=()=>{if(confirm('Hapus data ini?')){let id=Number(b.dataset.delBarang);d.barang=d.barang.filter(x=>x.id!==id);save(d);renderBarang(null,alertBox('success','✅ Data barang berhasil dihapus.'))}})}
+function renderSupplier(editId=null,msg=''){let d=load();if(currentUser().role!=='admin')return noAccess();let edit=d.supplier.find(x=>x.id==editId);pageEl().innerHTML=`<div class="page-title"><h1>Form Supplier</h1><a class="btn btn-print" href="laporan_supplier.html">Cetak Laporan</a></div>${msg}<div class="card"><form id="supplierForm"><input type="hidden" name="id" value="${edit?.id||''}"><div class="grid"><div class="form-group"><label>Nama Supplier</label><input type="text" name="nama_supplier" value="${esc(edit?.nama_supplier||'')}" required></div><div class="form-group"><label>No. Telepon</label><input type="text" name="no_telp" value="${esc(edit?.no_telp||'')}"></div></div><div class="form-group"><label>Alamat</label><textarea name="alamat" rows="3">${esc(edit?.alamat||'')}</textarea></div><button type="submit">${edit?'Update Supplier':'Simpan Supplier'}</button>${edit?' <button type="button" class="btn btn-secondary" onclick="location.href=\'supplier.html\'">Batal</button>':''}</form></div><div class="card"><table><thead><tr><th>No</th><th>Nama Supplier</th><th>No. Telepon</th><th>Alamat</th><th>Aksi</th></tr></thead><tbody>${[...d.supplier].sort((a,b)=>b.id-a.id).map((s,i)=>`<tr><td>${i+1}</td><td>${esc(s.nama_supplier)}</td><td>${esc(s.no_telp)}</td><td>${esc(s.alamat)}</td><td class="actions"><button class="btn btn-secondary" data-edit-supplier="${s.id}">Edit</button><button class="btn btn-danger" data-del-supplier="${s.id}">Hapus</button></td></tr>`).join('')}</tbody></table></div>`;q('#supplierForm').onsubmit=e=>{e.preventDefault();let f=formData(e.target);let o={id:f.id?Number(f.id):nextId(d.supplier),nama_supplier:f.nama_supplier,no_telp:f.no_telp,alamat:f.alamat};if(f.id)d.supplier[d.supplier.findIndex(x=>x.id==f.id)]=o;else d.supplier.push(o);save(d);renderSupplier(null,alertBox('success','Data supplier berhasil diproses.'))};qa('[data-edit-supplier]').forEach(b=>b.onclick=()=>renderSupplier(b.dataset.editSupplier));qa('[data-del-supplier]').forEach(b=>b.onclick=()=>{if(confirm('Hapus data ini?')){d.supplier=d.supplier.filter(x=>x.id!=b.dataset.delSupplier);save(d);renderSupplier(null,alertBox('success','Data supplier berhasil diproses.'))}})}
+function renderKasir(editId=null,msg=''){let d=load();if(currentUser().role!=='admin')return noAccess();let edit=d.users.find(x=>x.id==editId&&x.role==='kasir');let rows=d.users.filter(x=>x.role==='kasir').sort((a,b)=>b.id-a.id);pageEl().innerHTML=`<div class="page-title"><h1>Form Nama Kasir</h1><a class="btn btn-print" href="laporan_kasir.html">Cetak Laporan</a></div>${msg}<div class="card"><form id="kasirForm"><input type="hidden" name="id" value="${edit?.id||''}"><div class="grid"><div class="form-group"><label>Nama Kasir</label><input type="text" name="nama" value="${esc(edit?.nama||'')}" required></div><div class="form-group"><label>Username</label><input type="text" name="username" value="${esc(edit?.username||'')}" required></div><div class="form-group"><label>Password ${edit?'(isi jika ingin diganti)':''}</label><input type="password" name="password" ${edit?'':'required'}></div><div class="form-group"><label>No. HP</label><input type="text" name="no_hp" value="${esc(edit?.no_hp||'')}"></div><div class="form-group"><label>Status</label><select name="status"><option value="aktif" ${edit?.status==='aktif'?'selected':''}>Aktif</option><option value="nonaktif" ${edit?.status==='nonaktif'?'selected':''}>Nonaktif</option></select></div></div><div class="form-group"><label>Alamat</label><textarea name="alamat" rows="3">${esc(edit?.alamat||'')}</textarea></div><button type="submit">${edit?'Update Kasir':'Simpan Kasir'}</button>${edit?' <button type="button" class="btn btn-secondary" onclick="location.href=\'kasir.html\'">Batal</button>':''}</form></div><div class="card"><table class="kasir-table"><thead><tr><th>No</th><th>Nama Kasir</th><th>Username</th><th>No. HP</th><th>Alamat</th><th>Status</th><th>Aksi</th></tr></thead><tbody>${rows.map((u,i)=>`<tr><td>${i+1}</td><td><strong>${esc(u.nama)}</strong></td><td>${esc(u.username)}</td><td>${esc(u.no_hp||'-')}</td><td class="address-cell">${esc(u.alamat||'-')}</td><td><span class="status-badge ${u.status==='aktif'?'is-active':'is-inactive'}">${u.status}</span></td><td class="actions"><button class="btn btn-secondary" data-edit-kasir="${u.id}">Edit</button><button class="btn btn-danger" data-del-kasir="${u.id}">Hapus</button></td></tr>`).join('')}</tbody></table></div>`;q('#kasirForm').onsubmit=e=>{e.preventDefault();let f=formData(e.target);let id=f.id?Number(f.id):nextId(d.users);let existing=d.users.find(x=>x.id===id)||{};let o={id,nama:f.nama,username:f.username,password:f.password||existing.password||'kasir123',role:'kasir',no_hp:f.no_hp,alamat:f.alamat,status:f.status};if(f.id)d.users[d.users.findIndex(x=>x.id==id)]=o;else d.users.push(o);save(d);renderKasir(null,alertBox('success','Data kasir berhasil diproses.'))};qa('[data-edit-kasir]').forEach(b=>b.onclick=()=>renderKasir(b.dataset.editKasir));qa('[data-del-kasir]').forEach(b=>b.onclick=()=>{if(confirm('Hapus data ini?')){d.users=d.users.filter(x=>x.id!=b.dataset.delKasir);save(d);renderKasir(null,alertBox('success','Data kasir berhasil diproses.'))}})}
+function renderPenjualan(){let d=load(),u=currentUser();let ps=filteredPenjualan(d);pageEl().innerHTML=`<div class="page-title"><h1>Form Penjualan</h1>${u.role==='admin'?'<a class="btn btn-print" href="laporan_penjualan.html">Cetak Laporan</a>':''}</div><div id="jual-alert"></div><div class="card"><form id="formPenjualan"><div class="grid-3"><div class="form-group"><label>Nama Kasir</label><input type="text" value="${esc(u.nama)}" readonly></div><div class="form-group"><label>Tanggal</label><input type="text" value="${nowStr()}" readonly></div><div class="form-group"><label>Uang Bayar</label><input type="text" name="bayar" id="bayar" class="rupiah-input" inputmode="numeric" placeholder="Contoh: 100.000" required></div></div><div class="grid-3"><div class="form-group"><label>Pilih Barang</label><select id="pilihBarang"><option value="">- Pilih Barang -</option>${d.barang.filter(b=>b.stok>0).sort((a,b)=>a.nama_barang.localeCompare(b.nama_barang)).map(b=>`<option value="${b.id}" data-nama="${esc(b.nama_barang)}" data-satuan="${esc(b.satuan)}" data-harga="${b.harga_jual}" data-stok="${b.stok}">${esc(b.nama_barang)} (${esc(b.satuan)}) - ${money(b.harga_jual)} - Stok ${b.stok}</option>`).join('')}</select><small class="field-hint">Satuan barang ditampilkan agar kasir tidak keliru memilih item.</small></div><div class="form-group"><label>Jumlah</label><input type="number" id="jumlah" min="1" value="1"></div><div class="form-group" style="align-self:end"><button type="button" id="tambahItemBtn">Tambah Item</button></div></div><table id="tabelItem" class="cart-mobile-table"><thead><tr><th>Barang</th><th>Harga</th><th>Qty</th><th>Subtotal</th><th>Aksi</th></tr></thead><tbody></tbody><tfoot><tr><th colspan="3">Total</th><th id="grandTotal">Rp 0</th><th></th></tr></tfoot></table><br><button type="submit">Simpan Transaksi & Cetak Nota</button></form></div><div class="card history-card"><h2>Riwayat Penjualan</h2><table class="history-mobile-table"><thead><tr><th>No</th><th>No Faktur</th><th>Tanggal</th><th>Nama Kasir</th><th>Total</th><th>Bayar</th><th>Kembali</th><th>Aksi</th></tr></thead><tbody>${ps.slice(0,20).map((p,i)=>`<tr><td>${i+1}</td><td>${p.no_faktur}</td><td>${p.tanggal}</td><td>${esc(getKasir(p.kasir_id,d).nama)}</td><td>${money(p.total)}</td><td>${money(p.bayar)}</td><td>${money(p.kembali)}</td><td><a class="btn btn-print" href="nota.html?id=${p.id}">Cetak Nota</a></td></tr>`).join('')}</tbody></table></div><style>.item-unit-badge{display:inline-flex;align-items:center;margin-left:6px;padding:3px 8px;border-radius:999px;background:rgba(37,99,235,.10);color:#1d4ed8;font-size:12px;font-weight:700}</style>`;let items=[],total=0;function recalcTotal(){total=items.reduce((sum,it)=>sum+it.subtotal,0)}function draw(){recalcTotal();q('#tabelItem tbody').innerHTML=items.map((it,i)=>`<tr><td>${it.nama} <span class="item-unit-badge">(${it.satuan})</span><input type="hidden" name="barang_id[]" value="${it.barang_id}"></td><td>${money(it.harga_jual)}</td><td>x${it.qty}<input type="hidden" name="qty[]" value="${it.qty}"></td><td>${money(it.subtotal)}</td><td><button type="button" class="btn btn-danger" data-rm-item="${i}">Hapus</button></td></tr>`).join('');q('#grandTotal').textContent=money(total);qa('[data-rm-item]').forEach(b=>b.onclick=()=>{let i=Number(b.dataset.rmItem);items.splice(i,1);draw()})}q('#tambahItemBtn').onclick=()=>{let sel=q('#pilihBarang'),op=sel.options[sel.selectedIndex];if(!sel.value)return alert('Pilih barang terlebih dahulu.');let qty=Number(q('#jumlah').value||0),stok=Number(op.dataset.stok),barangId=Number(sel.value);if(qty<=0)return alert('Jumlah harus lebih dari 0.');let existing=items.find(it=>it.barang_id===barangId);let qtySekarang=existing?existing.qty:0;if(qtySekarang+qty>stok)return alert('Jumlah melebihi stok barang. Stok tersedia: '+stok+'. Sudah ada di transaksi: '+qtySekarang+'.');let harga=Number(op.dataset.harga);if(existing){existing.qty+=qty;existing.subtotal=existing.harga_jual*existing.qty}else{items.push({barang_id:barangId,nama:op.dataset.nama,satuan:op.dataset.satuan,harga_jual:harga,qty,subtotal:harga*qty})}draw();sel.value='';q('#jumlah').value=1};q('#formPenjualan').onsubmit=e=>{e.preventDefault();if(!items.length)return alert('Tambahkan minimal satu item transaksi.');let bayar=Number((q('#bayar').value||'').replace(/\D/g,''));if(bayar<total){q('#jual-alert').innerHTML=alertBox('error','Uang bayar kurang dari total transaksi.');return}let id=nextId(d.penjualan),tgl=nowStr(),no='TRX-'+tgl.replace(/\D/g,'');d.penjualan.push({id,no_faktur:no,tanggal:tgl,kasir_id:u.id,total,bayar,kembali:bayar-total});items.forEach(it=>{d.detail_penjualan.push({id:nextId(d.detail_penjualan),penjualan_id:id,barang_id:it.barang_id,harga_jual:it.harga_jual,qty:it.qty,subtotal:it.subtotal});let b=d.barang.find(x=>x.id===it.barang_id);if(b)b.stok-=it.qty});save(d);location.href='nota.html?id='+id+'&auto=1'}}
+function renderDetail(){let d=load(),u=currentUser();let rows=detailRows(d);pageEl().innerHTML=`<div class="page-title"><h1>Detail Penjualan / Transaksi</h1>${u.role==='admin'?'<a class="btn btn-print" href="laporan_detail_penjualan.html">Cetak Laporan</a>':''}</div><div class="card"><table><thead><tr><th>No</th><th>No Faktur</th><th>Tanggal</th><th>Nama Kasir</th><th>Kode Barang</th><th>Nama Barang</th><th>Harga</th><th>Qty</th><th>Subtotal</th></tr></thead><tbody>${rows.map((r,i)=>`<tr><td>${i+1}</td><td>${r.no_faktur}</td><td>${r.tanggal}</td><td>${esc(r.nama_kasir)}</td><td>${esc(r.kode_barang)}</td><td>${esc(r.nama_barang)}</td><td>${money(r.harga_jual)}</td><td>${r.qty}</td><td>${money(r.subtotal)}</td></tr>`).join('')||'<tr><td colspan="9">Belum ada detail transaksi.</td></tr>'}</tbody></table></div>`}
+function reportHeader(title,extra=''){let u=currentUser();return `<div class="report-header"><h2>${title}</h2>${extra}<p>Dicetak oleh ${esc(u.nama)} pada ${nowStr().slice(0,16)}</p></div>`}
+function renderReport(type){let d=load(),u=currentUser(); if(u.role!=='admin')return noAccess();let titleMap={laporan_barang:'Laporan Barang',laporan_supplier:'Laporan Supplier',laporan_kasir:'Laporan Kasir',laporan_penjualan:'Laporan Penjualan',laporan_detail_penjualan:'Laporan Detail Transaksi'};let html=`<div class="page-title no-print"><h1>${titleMap[type]}</h1><button class="btn btn-print" onclick="window.print()">Cetak Laporan</button></div>`;if(type==='laporan_barang'){html+=`<div class="card report-print-card">${reportHeader('Laporan Data Barang Toko Sembako')}<table class="report-table"><thead><tr><th>No</th><th>Kode</th><th>Nama Barang</th><th>Supplier</th><th>Satuan</th><th>Harga Beli</th><th>Harga Jual</th><th>Stok</th></tr></thead><tbody>${[...d.barang].sort((a,b)=>a.kode_barang.localeCompare(b.kode_barang)).map((b,i)=>`<tr><td>${i+1}</td><td>${b.kode_barang}</td><td>${esc(b.nama_barang)}</td><td>${esc(getSupplier(b.supplier_id,d).nama_supplier||'-')}</td><td>${esc(b.satuan)}</td><td>${money(b.harga_beli)}</td><td>${money(b.harga_jual)}</td><td>${b.stok}</td></tr>`).join('')}</tbody></table><div class="report-print-footer">© ${new Date().getFullYear()} Toko Karunia Berkah • Sistem Informasi Penjualan Toko Sembako</div></div>`}
+else if(type==='laporan_supplier'){html+=`<div class="card report-print-card">${reportHeader('Laporan Data Supplier Toko Sembako')}<table class="report-table"><thead><tr><th>No</th><th>Nama Supplier</th><th>No. Telepon</th><th>Alamat</th></tr></thead><tbody>${d.supplier.map((s,i)=>`<tr><td>${i+1}</td><td>${esc(s.nama_supplier)}</td><td>${esc(s.no_telp)}</td><td>${esc(s.alamat)}</td></tr>`).join('')}</tbody></table><div class="report-print-footer">© ${new Date().getFullYear()} Toko Karunia Berkah • Sistem Informasi Penjualan Toko Sembako</div></div>`}
+else if(type==='laporan_kasir'){let rows=d.users.filter(x=>x.role==='kasir');html+=`<div class="card report-print-card">${reportHeader('Laporan Data Kasir Toko Sembako')}<table class="report-table"><thead><tr><th>No</th><th>Nama Kasir</th><th>Username</th><th>No. HP</th><th>Alamat</th><th>Status</th></tr></thead><tbody>${rows.map((k,i)=>`<tr><td>${i+1}</td><td>${esc(k.nama)}</td><td>${esc(k.username)}</td><td>${esc(k.no_hp)}</td><td>${esc(k.alamat)}</td><td>${esc(k.status)}</td></tr>`).join('')}</tbody></table><div class="report-print-footer">© ${new Date().getFullYear()} Toko Karunia Berkah • Sistem Informasi Penjualan Toko Sembako</div></div>`}
+else if(type==='laporan_penjualan'){let rows=filteredPenjualan(d),total=rows.reduce((s,p)=>s+p.total,0);html+=`<div class="card no-print"><form class="filter"><div class="form-group"><label>Dari Tanggal</label><input type="date"></div><div class="form-group"><label>Sampai Tanggal</label><input type="date"></div><button type="button">Tampilkan</button><a class="btn btn-secondary" href="laporan_penjualan.html">Reset</a></form></div><div class="card report-print-card">${reportHeader('Laporan Penjualan Toko Sembako','<p>Periode: Awal s.d. Akhir</p>')}<table class="report-table"><thead><tr><th>No</th><th>No Faktur</th><th>Tanggal</th><th>Nama Kasir</th><th>Total</th><th>Bayar</th><th>Kembali</th><th class="no-print">Nota</th></tr></thead><tbody>${rows.map((p,i)=>`<tr><td>${i+1}</td><td>${p.no_faktur}</td><td>${p.tanggal}</td><td>${esc(getKasir(p.kasir_id,d).nama)}</td><td>${money(p.total)}</td><td>${money(p.bayar)}</td><td>${money(p.kembali)}</td><td class="no-print"><a class="btn btn-print" href="nota.html?id=${p.id}">Nota</a></td></tr>`).join('')}<tr><th colspan="4">Total Penjualan</th><th>${money(total)}</th><th colspan="2"></th><th class="no-print"></th></tr></tbody></table><div class="report-print-footer">© ${new Date().getFullYear()} Toko Karunia Berkah • Sistem Informasi Penjualan Toko Sembako</div></div>`}
+else {let rows=detailRows(d);html+=`<div class="card report-print-card">${reportHeader('Laporan Detail Transaksi Toko Sembako')}<table class="report-table"><thead><tr><th>No</th><th>No Faktur</th><th>Tanggal</th><th>Nama Kasir</th><th>Kode Barang</th><th>Nama Barang</th><th>Harga</th><th>Qty</th><th>Subtotal</th></tr></thead><tbody>${rows.map((r,i)=>`<tr><td>${i+1}</td><td>${r.no_faktur}</td><td>${r.tanggal}</td><td>${esc(r.nama_kasir)}</td><td>${esc(r.kode_barang)}</td><td>${esc(r.nama_barang)}</td><td>${money(r.harga_jual)}</td><td>${r.qty}</td><td>${money(r.subtotal)}</td></tr>`).join('')}</tbody></table><div class="report-print-footer">© ${new Date().getFullYear()} Toko Karunia Berkah • Sistem Informasi Penjualan Toko Sembako</div></div>`}pageEl().innerHTML=html}
+function renderNota(){let d=load(),id=Number(new URLSearchParams(location.search).get('id')||0),p=d.penjualan.find(x=>x.id===id);if(!p){q('#nota-root').innerHTML='<h2>Nota tidak ditemukan.</h2>';return}let u=getKasir(p.kasir_id,d),rows=d.detail_penjualan.filter(x=>x.penjualan_id===id).map(x=>({...x,...getBarang(x.barang_id,d)}));q('#nota-root').innerHTML=`<div class="screen-wrap"><aside class="toolbar"><h1>Nota Pembelian</h1><p>Transaksi berhasil dibuat. Cetak struk ini untuk diberikan kepada pembeli.</p><div class="btns"><button class="btn green" onclick="window.print()">🖨️ Cetak Nota</button><a class="btn" href="penjualan.html">🛒 Transaksi Baru</a><a class="btn gray" href="detail_penjualan.html">📑 Detail Transaksi</a></div></aside><main class="nota-preview"><section class="receipt"><h2>TOKO KARUNIA BERKAH</h2><div class="store-info">Sistem Informasi Penjualan<br>Telp: 0812-0000-0000<br>Terima kasih sudah berbelanja</div><div class="line"></div><div class="meta"><div class="meta-row"><span>No Faktur</span><span>: ${p.no_faktur}</span></div><div class="meta-row"><span>Tanggal</span><span>: ${p.tanggal}</span></div><div class="meta-row"><span>Kasir</span><span>: ${esc(u.nama)}</span></div></div><div class="line"></div>${rows.map(r=>`<div class="item"><div class="item-name">${esc(r.nama_barang)}</div><div class="item-calc"><span>${r.qty} ${esc(r.satuan)} x ${money(r.harga_jual)}</span><strong>${money(r.subtotal)}</strong></div></div>`).join('')}<div class="line"></div><div class="totals"><div class="total-row grand"><span>TOTAL</span><span>${money(p.total)}</span></div><div class="total-row"><span>Bayar</span><span>${money(p.bayar)}</span></div><div class="total-row"><span>Kembali</span><span>${money(p.kembali)}</span></div></div><div class="line"></div><div class="footer-note">Barang yang sudah dibeli<br>tidak dapat dikembalikan.<br>*** Terima Kasih ***</div><div class="barcode">||||||||||||</div></section></main></div>`;if(new URLSearchParams(location.search).has('auto'))setTimeout(()=>window.print(),450)}
+function loginInit(){load();let form=q('[data-login-form]');if(!form)return;form.onsubmit=e=>{e.preventDefault();let d=load(),f=formData(form),u=d.users.find(x=>x.username===f.username&&x.password===f.password&&x.status==='aktif');if(!u){q('#login-alert').innerHTML=alertBox('error','Username atau password salah.');return}setUser({id:u.id,nama:u.nama,role:u.role,username:u.username});sessionStorage.setItem('showAppLoader','login');location.href='dashboard.html'}}
+function forgotInit(){load();let form=q('[data-forgot-form]');if(!form)return;form.onsubmit=e=>{e.preventDefault();let d=load(),f=formData(form),el=q('#forgot-alert');if(!f.username||!f.password_baru||!f.konfirmasi_password){el.innerHTML='<div class="alert error">Semua data wajib diisi.</div>';return}if(f.password_baru!==f.konfirmasi_password){el.innerHTML='<div class="alert error">Konfirmasi password tidak sama.</div>';return}let u=d.users.find(x=>x.username===f.username);if(!u){el.innerHTML='<div class="alert error">Username tidak ditemukan.</div>';return}u.password=f.password_baru;save(d);sessionStorage.setItem('showAppLoader','forgot');el.innerHTML='<div class="alert success">Password berhasil diperbarui. Silakan login kembali.</div>';setTimeout(()=>location.href='index.html',900)}}
+function main(){let page=document.body.dataset.page;if(!guard(page))return;if(page==='login')return loginInit();if(page==='forgot')return forgotInit();if(page==='nota')return renderNota();setHeader();({dashboard:renderDashboard,barang:()=>renderBarang(),supplier:()=>renderSupplier(),kasir:()=>renderKasir(),penjualan:renderPenjualan,detail_penjualan:renderDetail,laporan_barang:()=>renderReport('laporan_barang'),laporan_supplier:()=>renderReport('laporan_supplier'),laporan_kasir:()=>renderReport('laporan_kasir'),laporan_penjualan:()=>renderReport('laporan_penjualan'),laporan_detail_penjualan:()=>renderReport('laporan_detail_penjualan')})[page]?.()}
+main();
+})();
+
+</script></body></html>

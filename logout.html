@@ -1,0 +1,36 @@
+<!doctype html><html><head><meta charset="utf-8"><script>sessionStorage.removeItem("sembakoUser");location.href="index.html";</script></head><body>
+<script>
+(function(){
+    const mq = window.matchMedia('(max-width: 1180px)');
+    const buttonSelector = '[data-sidebar-toggle]';
+    function setButton(collapsed){
+        const button = document.querySelector(buttonSelector);
+        if(!button) return;
+        button.innerHTML = '<span class="toggle-icon">' + (collapsed ? '☰' : '×') + '</span>';
+        button.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+        button.setAttribute('aria-label', collapsed ? 'Buka menu samping' : 'Tutup menu samping');
+        button.setAttribute('title', collapsed ? 'Buka menu' : 'Tutup menu');
+    }
+    function syncResponsiveSidebar(){
+        if(!document.querySelector('.sidebar')) return;
+        if(mq.matches){
+            document.body.classList.add('sidebar-collapsed');
+            localStorage.setItem('sidebarCollapsed','1');
+            setButton(true);
+        }
+    }
+    window.addEventListener('load', syncResponsiveSidebar);
+    mq.addEventListener ? mq.addEventListener('change', syncResponsiveSidebar) : mq.addListener(syncResponsiveSidebar);
+    document.addEventListener('click', function(e){
+        if(!mq.matches) return;
+        const link = e.target.closest('.sidebar-nav a, .logout');
+        if(link){
+            document.body.classList.add('sidebar-collapsed');
+            localStorage.setItem('sidebarCollapsed','1');
+            setButton(true);
+        }
+    });
+})();
+</script>
+
+</body></html>
